@@ -78,7 +78,10 @@
 **图 8-2 模型与真语句**：5 个对象——狮心理查、约翰国王、两人的左腿、王冠。二元关系：兄弟={〈理查,约翰〉,〈约翰,理查〉}、在头顶={〈王冠,约翰〉}；一元关系：人={理查,约翰}、国王={约翰}、王冠={王冠}；一元函数：左腿={〈理查〉↦理查左腿, 〈约翰〉↦约翰左腿, …}。真语句示例：¬Brother(LeftLeg(Richard),John)；Brother(Richard,John)∧Brother(John,Richard)；King(Richard)∨King(John)；¬King(Richard)⇒King(John)。
 
 **亲属关系论域**（定义即公理，形如"⇔"）：母亲 ∀m,c Mother(c)=m ⇔ Female(m)∧Parent(m,c)；丈夫 ∀h,w Husband(h,w) ⇔ Male(h)∧Spouse(h,w)；父母-孩子互反 ∀p,c Parent(p,c) ⇔ Child(c,p)；祖父母 ∀g,c Grandparent(g,c) ⇔ ∃p Parent(g,p)∧Parent(p,c)；兄弟姐妹 ∀x,y Sibling(x,y) ⇔ x≠y ∧ ∃p Parent(p,x)∧Parent(p,y)。
-**数的论域（皮亚诺公理）**：NatNum(0)；∀n NatNum(n) ⇒ NatNum(S(n))；∀m,n m=n ⇔ S(m)=S(n)；加法递归在首参数：∀m NatNum(m) ⇒ +(0,m)=m；∀m,n NatNum(m)∧NatNum(n) ⇒ +(S(m),n)=S(+(m,n))。四条公理即长出整个数论。
+**数的论域（皮亚诺公理）**：NatNum(0)；∀n NatNum(n) ⇒ NatNum(S(n))；∀m,n m=n ⇔ S(m)=S(n)；加法递归在第二参数：∀m NatNum(m) ⇒ +(m,0)=m；∀m,n NatNum(m)∧NatNum(n) ⇒ +(m,S(n))=S(+(m,n))。四条公理即长出整个数论。
+**集合与列表论域**（8.3.3，与数的论域并列的标准论域）：集合以空集、Add、成员、子集、交、并等约 8 条公理刻画；Lisp 列表用常量 Nil 与函数 Cons/First/Rest 表示。
+
+**术语**：断言（assertion）= 加入 KB 的语句；查询即目标（question）；答案以置换/绑定表 {var/value} 呈现——AskVars 适用于霍恩子句 KB。
 
 **wumpus 世界**（对比第 7 章的百万条命题公理）：
 - 感知公理：∀t,s,g,w,c Percept([s,Breeze,g,w,c],t) ⇒ Breeze(t)；∀t,s,g,w,c Percept([s,None,g,w,c],t) ⇒ ¬Breeze(t)（Glitter 位同理两条）
@@ -88,7 +91,7 @@
 - 动作查询：AskVars(KB, ∃a BestAction(a,5)) 返回 {a/Grab}
 
 **电子电路论域**（7 步法示范；图 8-6 一位全加器 C₁：2 异或门、2 与门、1 或门，输入 i₁、i₂ 与进位 i₃，输出和位与进位）：
-- 词汇表：谓词 Circuit/Gate/Terminal/Connected；函数 Type/In/Out/Signal/Arity；常量 0、1、AND、OR、XOR、NOT、Nothing。
+- 词汇表：谓词 Circuit/Gate/Terminal/Connected/Arity（Arity(c,i,j) 断言电路 c 有 i 个输入端子和 j 个输出端子）；函数 Type/In/Out/Signal；常量 0、1、AND、OR、XOR、NOT、Nothing。
 - 12 条通用公理：①连通端子信号相同 ∀t₁,t₂ Connected(t₁,t₂) ⇒ Signal(t₁)=Signal(t₂)；②每个端子信号非 1 即 0；③Connected 可交换；④门类型恰 4 种；⑤与门 ∀g Gate(g)∧Type(g)=AND ⇒ Signal(Out(1,g))=0 ⇔ ∃n Signal(In(n,g))=0；⑥或门 ∀g Gate(g)∧Type(g)=OR ⇒ Signal(Out(1,g))=1 ⇔ ∃n Signal(In(n,g))=1；⑦异或门 ∀g Gate(g)∧Type(g)=XOR ⇒ Signal(Out(1,g))=1 ⇔ Signal(In(1,g))≠Signal(In(2,g))；⑧非门输出≠输入；⑨元数 ∀g Gate(g)∧Type(g)=NOT ⇒ Arity(g,1,1)，∀g Gate(g)∧k=Type(g)∧(k=AND∨k=OR∨k=XOR) ⇒ Arity(g,2,1)；⑩端子不超元数 ∀c,i,j Circuit(c)∧Arity(c,i,j) ⇒ ∀n (n≤i ⇒ Terminal(In(n,c))) ∧ (n>i ⇒ In(n,c)=Nothing) ∧ ∀n (n≤j ⇒ Terminal(Out(n,c))) ∧ (n>j ⇒ Out(n,c)=Nothing)；⑪门、端子、信号互异；⑫门是电路。
 - 实例编码：Circuit(C₁)∧Arity(C₁,3,2)；Gate(X₁)∧Type(X₁)=XOR；Gate(X₂)∧Type(X₂)=XOR；Gate(A₁)∧Type(A₁)=AND；Gate(A₂)∧Type(A₂)=AND；Gate(O₁)∧Type(O₁)=OR；12 条连线 Connected(Out(1,X₁),In(1,X₂))、Connected(Out(1,X₁),In(2,A₂))、Connected(Out(1,A₂),In(1,O₁))、Connected(Out(1,A₁),In(2,O₁))、Connected(Out(1,X₂),Out(1,C₁))、Connected(Out(1,O₁),Out(2,C₁))、Connected(In(1,C₁),In(1,X₁))、Connected(In(1,C₁),In(1,A₁))、Connected(In(2,C₁),In(2,X₁))、Connected(In(2,C₁),In(2,A₁))、Connected(In(3,C₁),In(2,X₂))、Connected(In(3,C₁),In(1,A₂))。
 - 查询①"哪些输入使和位 0、进位 1"：∃i₁,i₂,i₃ Signal(In(1,C₁))=i₁ ∧ Signal(In(2,C₁))=i₂ ∧ Signal(In(3,C₁))=i₃ ∧ Signal(Out(1,C₁))=0 ∧ Signal(Out(2,C₁))=1 → AskVars 返回 3 置换：{i₁/1,i₂/1,i₃/0}、{i₁/1,i₂/0,i₃/1}、{i₁/0,i₂/1,i₃/1}。
@@ -105,6 +108,7 @@
 ## 关联
 - **第7章**：命题逻辑的每方格/每时刻公理爆炸直接动机了一阶逻辑；wumpus 公理在此压缩为数条。
 - **第9章**：合一、广义归结、前向/反向链接、Prolog 与数据库语义的正式使用。
-- **第10章**：经典规划用 FOL 后继状态公理表示；通用本体的构建。
+- **第10章**：通用本体与知识表示（类别、量度、事件、时间本体、非单调推理）。
+- **第11章**：经典规划使用 FOL 后继状态公理（8.3.4 所指）。
 - **第12章**：概率论补足认识论维度（信任度），与 FOL 的三值知识状态互补。
 - **外部概念**：关系数据库与 SQL（数据库语义）、Prolog/Datalog、描述逻辑（OWL 本体）、SMT 求解器。

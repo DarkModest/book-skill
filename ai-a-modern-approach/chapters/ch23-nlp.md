@@ -30,10 +30,13 @@
 **未登录词（out-of-vocabulary）** — 测试中出现而训练中未见的词，用 <UNK>/<NUM>/<EMAIL> 等符号建模。
 **跳字（skip-gram）** — 收集中间隔若干词的词对（如法语 "ne…pas"），捕获远程搭配信息。
 **词性标注（part-of-speech tagging）** — 为每个词分配词汇范畴；Penn Treebank 定义 45 个标签。
+**WordNet** — 机器可读的结构化电子词典（如 kitten 词条给出层级类别），开放类知识的一大来源。
 **生成模型 vs 判别模型（generative/discriminative）** — 学联合分布 P(W,C) 可采样但错误率略高；判别模型学 P(C|W) 直接建模输出、易加特征。
 **乔姆斯基范式（Chomsky Normal Form）** — 规则右侧恰为两个非终结符或一个终结符；任何 CFG 可自动转换，是 CYK 的前提。
 **依存文法（dependency grammar）** — 用词汇项之间的二元关系表达句法、无成分结构；适合自由词序语言，Universal Dependencies 提供 70+ 语言标注。
+**长距离依存（空位/slash 特征）** — 疑问词提前留下空缺，用空位/slash 特征处理："Who did the agent tell you to give the gold to __" 中空位与 who 相距 11 词。
 **树库（treebank）** — 带句法分析树的句子的语料库（Penn Treebank 十万余句），对节点类型计数即可恢复 PCFG。
+**无监督/半监督句法分析** — inside-outside 算法从无树文本估计 PCFG 概率（类前向-后向）；半监督利用部分括号表示法（作者标注的部分树）；课程学习由易到难（先双词短句）。
 **准逻辑形式（quasi-logical form）** — 文法产出的中间表示，量词辖域由文法之外的优先规则决定。
 **言语行为（speech act）** — 话语的意图类型（提问/命令/承诺/警告），属语用学。
 **借代与隐喻（metonymy/metaphor）** — 用一对象代另一对象（Chrysler→其发言人）；隐喻是相似性版本的借代。
@@ -53,7 +56,7 @@
 
 ## 算法要点
 **n 元模型与平滑**
-P(w_{1:N}) = ∏ P(w_i | 前 n−1 词)。计数估计后做线性插值回退：λ₃P(三元)+λ₂P(二元)+λ₁P(一元)，λ 固定或 EM 训练，也可随计数高低自适应；更精细的有 Witten-Bell、Kneser-Ney；"stupid backoff" 则靠海量语料配简单回退。句界加 <S>，低频词归并 <UNK>。
+P(w_{1:N}) = ∏ P(w_i | 前 n−1 词)。计数估计后做线性插值回退：λ₃P(三元)+λ₂P(二元)+λ₁P(一元)，λ 固定或 EM 训练，也可随计数高低自适应；更精细的有 Witten-Bell、Kneser-Ney；"stupid backoff" 则靠海量语料配简单回退。句界加 <S>，低频词归并 <UNK>。字符级 n 元模型：语言识别可达 99%+ 准确；丹麦语超长复合词亦需字符级建模。
 
 **HMM 词性标注（及判别式替代）**
 转移 P(C_i|C_{i−1})（Penn Treebank 中 13124 个 MD 里 10471 个后接 VB，故 P(VB|MD)≈0.8）；传感器 P(w|C)（P(would|MD)=0.1）。维特比找最可能词性序列，精度约 97%。判别式：每词性一个逻辑斯谛回归模型，特征如 w_{i−1}="I"、w_i 以 "ous" 结尾、c_{i−1}=IN、w_{i−2} 属过去时等百万级稀疏二值特征，贪心左到右标注。
@@ -111,6 +114,8 @@ E0 文法 + 组合语义：算术文法给 "3+(4÷2)" 的树根标 Exp(5)；英�
 | Witten-Bell、Kneser-Ney | 更精细的折扣 | 更复杂 |
 | stupid backoff | 简单回退 + 超大语料 | 目标相同：减方差 |
 
+自然语言任务一览（23.6）：语音识别（WER 3%–5%；2011 年引入深度学习使错误率降约 30%）｜文本-语音合成（约 2/3 听者更认可 WaveNet）｜问答（Start、AskMSR）｜机器翻译。
+
 图23-2 E0 文法（每规则带概率与示例短语）：
 
 | 左部 | 展开（概率，示例） |
@@ -134,7 +139,7 @@ E0 文法 + 组合语义：算术文法给 "3+(4÷2)" 的树根标 Exp(5)；英�
 
 图23-1 Penn Treebank 词性标签（45 个，各带示例词）：动词 VB talk／VBD talked／VBG talking／VBN／VBP／VBZ talks；名词 NN kitten／NNS kittens／NNP Ali／NNPS Fords；JJ purple／JJR／JJS；RB quickly／RBR／RBS、小品词 RP off；PRP you／PRP$ your／WP who／WP$ whose；DT the／PDT all／WDT which；MD should；IN of；TO to；CC and；CD three；EX there；FW per se；LS 1；UH eureka；SYM +；POS 's；标点 $ # “ ” ( ) , : . 等。
 
-词汇化 PCFG 片段（正文无编号图）：VP(v) → Verb(v) NP(n) [P1(v,n)] ｜ VP(v) → Verb(v) [P2(v)]；NP(n) → Article(a) Adjs(j) Noun(n) [P3(n,a)]；NP(n) → NP(n) Conjunction(c) NP(m) [P4(n,c,m)]；Verb(ate) → ate [0.002]；Noun(banana) → banana [0.0007]。P1 是 5000 动词×10000 名词的大表，靠平滑回退到仅依赖 v。
+词汇化 PCFG 片段（正文无编号图）：VP(v) → Verb(v) NP(n) [P1(v,n)] ｜ VP(v) → Verb(v) [P2(v)]；NP(n) → Article(a) Adjs(j) Noun(n) [P3(n,a)]；NP(n) → NP(n) Conjunction(c) NP(m) [P4(n,c,m)]；Verb(ate) → ate [0.002]；Noun(banana) → banana [0.0007]。P1 是 5000 动词×10000 名词的大表，靠平滑回退到仅依赖 v。连词辖域歧义如 "spaghetti and meatballs or lasagna"（期望 [[spaghetti and meatballs] or lasagna]）需词汇化辖域分析。
 
 扩展文法片段（图23-9，省略概率）：S(v) → NP(Sbj,pn,n) VP(pn,v)；VP(pn,v) → Verb(pn,v) NP(Obj,pn,n)；PP(head) → Prep(head) NP(Obj,pn,h)；Pronoun(Sbj,1S,I) → I；Pronoun(Obj,1S,me) → me；Verb(3S,see) → see。
 
@@ -169,13 +174,13 @@ S →（S→NP VP）NP VP →（VP→VP Adjective）NP VP Adjective →（VP→V
 1. 先问"这个字符串概率多大"，再问"是否合法"——概率语言模型是各类 NLP 任务的通用积木与基准。
 2. 低计数处方差大：平滑 + <UNK> 归并是 n 元模型的工程必需品。
 3. 序列标注三档取舍：贪心（快、易错）→ 维特比（精确、慢）→ 束搜索（b 可调折中）。
-4. 树库计数免费产出 PCFG；数据导向句法分析（data-oriented parsing）可自动泛化规则、压缩规则数量。
+4. 树库计数免费产出 PCFG；面向数据的句法分析（data-oriented parsing）可自动泛化规则、压缩规则数量。
 5. 扩展文法用参数化非终结符（格/人称/头）模块化表达一致性，优于把一切塞进概率表。
 6. 消歧不能只靠语料概率：必须叠加世界模型与说话者心理模型。
 7. n 元模型的天花板（长程信息、组合规则、逐字复读）正是第 24 章深度模型登场的动因。
 
 ## 关联
-- **第 8 章**：一阶逻辑与 BNF 文法是语义表示与文法形式的基础。
+- **第 7 章 / 第 8 章**：第 7 章 BNF 文法是文法形式的基础；第 8 章一阶逻辑与 λ 记号是语义表示的基础。
 - **第 14 章**：HMM 与维特比算法直接复用于词性标注。
 - **第 12 / 19 章**：词袋 = 朴素贝叶斯；判别式标注 = 逻辑斯谛回归 + 特征工程。
 - **第 21 / 24 章**：深度学习（词嵌入、RNN、Transformer）系统性解决本章模型的泛化与长程上下文局限。

@@ -18,10 +18,11 @@
   - 如何做：独立分量各自求解；树状 CSP 定向弧一致后线性求解；一般图用割集调整 O(d^c·(n−c)·d²)（线性内存）或树分解 O(nd^{w+1})（指数内存）
 
 ## 关键概念
-- **CSP 三元组（X, D, C）** — 变量集、各变量的域、约束集（约束=scope+rel）；解 = 一致（不违反任何约束）且完整（每变量已赋值）的赋值；一般 CSP 求解是 NP 完全的。
+- **CSP 三元组（X, D, C）** — 变量集、各变量的域、约束集（约束=scope+rel）；解 = 一致（不违反任何约束）且完整（每变量已赋值）的赋值；一般 CSP 求解是 NP 完全的。另有离散无限域（整数上的非线性约束不可判定）与连续域（线性约束可多项式求解，即线性规划）。
 - **约束图（constraint graph）** — 节点=变量、边=共享二元约束；高阶约束用约束超图或对偶图变换表示。
 - **全局约束（global constraint）** — 涉及任意多个变量的约束（Alldiff、Atmost/资源约束）；比拆成二元约束更易描述且有更强专用推理。
 - **偏好约束（preference constraint）/COP** — 编码为代价的软约束，引出约束优化问题（线性规划是一类 COP）。
+- **约束类型（车间作业调度例）** — 优先约束（工序先后，如轮轴先于车轮）、析取约束（两作业不能同时用同一机器/时间不重叠）、资源约束 Atmost（资源用量上限）。
 - **弧一致（arc consistency）** — Xi 相对 Xj 弧一致：Di 的每个值在 Dj 中都有满足约束的伴；AC-3 在 O(cd³) 内达成。
 - **路径一致（path consistency）** — {Xi,Xj} 的每个一致赋值都能被某 Xm 的赋值同时满足；对二元图即 3 一致。
 - **强 k 一致（strongly k-consistent）** — 1 到 k 级一致齐备；强 n 一致可 O(n²d) 无回溯解出，但建立的时间与空间均为 n 的指数级。
@@ -87,11 +88,10 @@ function Backtrack(csp, assignment) returns 一个解或 failure
             将 {var = value} 添加到 assignment 中
             inferences ← Inference(csp, var, assignment)   // 前向检验或 MAC
             if inferences ≠ failure then
-                将 inferences 添加到 csp 中
+                将 inferences 添加到 assignment 中
                 result ← Backtrack(csp, assignment)
                 if result ≠ failure then return result
-            从 csp 中删除 inferences                  // 原地单状态修改
-            从 assignment 中删除 {var = value}
+            从 assignment 中删除 {var = value} 连同 inferences   // 原地单状态修改
     return failure
 ```
 MRV+前向检验互补：前向检验恰好增量算出 MRV 所需的域大小信息。
@@ -130,7 +130,7 @@ O(nd²)；配合割集调整/树分解可推广到近似树状的图。
 
 ## 参考表
 
-回溯搜索的四个领域无关改进点（6.3 节四问）：
+回溯搜索的四个领域无关改进点（6.3 节四问；注：原书第 1 问"下一步看哪个变量、按什么顺序试值"拆为表中前三行）：
 
 | 决策点 | 启发式/技术 | 作用 |
 |---|---|---|

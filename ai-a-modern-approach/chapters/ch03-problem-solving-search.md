@@ -4,7 +4,7 @@
 当正确动作不显然时，智能体应提前规划：把世界抽象为原子状态空间图，在其上叠加搜索树寻找从初始状态到目标的路径。所有搜索算法本质相同——反复选择边界上的节点扩展，区别只在选择顺序（评价函数 f）与内存策略；算法性能是完备性、代价最优性、时间、空间四者间的权衡，而启发式函数的质量决定能省掉多少搜索。
 
 ## 框架
-- **标准问题形式化（Standard Problem Formulation）**：问题五元组 = 状态集合 + 初始状态 + Actions(s) + 转移模型 Result(s,a) + 目标测试 + 动作代价 c(s,a,s')
+- **问题形式化（problem formulation）**：3.1.2 定义含 6 组成项——状态集合 + 初始状态 + Actions(s) + 转移模型 Result(s,a) + 目标测试 + 动作代价 c(s,a,s')；原书小结口径为"5 部分"（初始状态、动作、转移模型、目标、动作代价，不单列状态集合）
   - 何时使用：任何可当作"找动作序列"的任务（环境须回合式、单智能体、完全可观测、确定、静态、离散、已知）
   - 如何做：目标形式化 → 问题形式化（抽象出合理且可执行的抽象层级）→ 搜索 → 执行；解=初始到目标的路径，最优解=代价最小路径（代价可加、为正）
 - **最佳优先搜索（Best-First Search）**：所有算法的统一模板——总是扩展边界中 f(n) 最小的节点
@@ -28,7 +28,7 @@
 - **抽象（abstraction）** — 良好抽象=可细化（任何抽象解可细化为详细解）+ 动作易执行。
 - **分支因子/深度（b, d, m）** — 后继数、最浅解深度、最大路径长度；复杂度分析的基本量。
 - **占优（dominance）** — 对所有 n 有 h2(n)≥h1(n) 则 h2 占优 h1，A* 用 h2 扩展节点不多于 h1；一致启发式中"越高越好"。
-- **有效分支因子（effective branching factor b*）** — 生成 n 个节点、解深 d 时均衡树所需的分支因子；衡量启发式质量。
+- **有效分支因子（effective branching factor b*）** — 生成 n 个节点、解深 d 时，深度 d 的均衡树包含 n+1 个节点所需的分支因子；衡量启发式质量。
 - **满意解（satisficing）** — 放弃最优换取速度：有界次优（≤W·C*）、有界代价（≤C）、无界代价（speedy search）。
 - **元级状态空间（metalevel state space）** — 把搜索程序自身内部状态当状态、扩展节点当动作；元级学习权衡计算开销与路径代价。
 
@@ -113,7 +113,7 @@ function DEPTH-LIMITED-SEARCH(problem, ℓ) returns 解节点或 failure 或 cut
       for each child in EXPAND(problem, node) do 将 child 添加到 frontier
   return result
 ```
-性质：DLS 在 ℓ<d 时不完备，时间 O(b^ℓ)、空间 O(bℓ)；ℓ 界限可用状态空间直径（罗马尼亚 20 城，ℓ=19 有效，直径=9 更好）。IDS 完备、等代价时代价最优，时间 O(b^d)（b=10,d=5 时生成 123450 节点 vs BFS 111110，仅多约 11%）、空间 O(bd)；内存不足且解深未知时的首选无信息算法。混合法：先 BFS 到内存将满，再对边界上每个节点做 IDS。
+性质：DLS 在 ℓ<d 时不完备，时间 O(b^ℓ)、空间 O(bℓ)；ℓ 界限可用状态空间直径（罗马尼亚 20 城，ℓ=19 有效，直径=9 更好）。IDS 完备（有限无环状态空间中完备；检查路径节点循环时才对任意有限状态空间完备）、等代价时代价最优，时间 O(b^d)（b=10,d=5 时生成 123450 节点 vs BFS 111110，仅多约 11%）、空间 O(bd)；内存不足且解深未知时的首选无信息算法。混合法：先 BFS 到内存将满，再对边界上每个节点做 IDS。
 
 **双向最佳优先搜索**（图3-14；需逆向后继推理，两边界+两 reached 表）：
 ```
@@ -141,7 +141,7 @@ function PROCEED(dir, problem, frontier, reached, reached₂, solution) returns 
         if PATH-COST(solution₂) < PATH-COST(solution) then solution ← solution₂
   return solution
 ```
-性质：动机 b^(d/2)≪b^d（b=d=10 时复杂性不到单向的五万分之一）；f=路径代价时找到的第一个解即最优，否则须记录并更新迄今最优直到 TERMINATED 证明不可能更优；双向一致代价不扩展代价 >C*/2 的节点，两半"在中间相遇"。
+性质：动机 b^(d/2)≪b^d（b=d=10 时复杂性不到单向的五万分之一）；f=路径代价时找到的第一个解即最优，否则须记录并更新迄今最优直到 TERMINATED 证明不可能更优；双向一致代价不扩展代价 >C*/2 的节点，两半"在中间相遇"。front-to-end 评估式 f₂(n)=max(2g(n), g(n)+h(n))（3.5.6）。
 
 **贪心最佳优先搜索** — f(n)=h(n)，直奔看似最近的节点。性质：有限空间图搜索完备、无限不完备；非最优；最坏 O(b^m)，好 h 时 O(bm) 级，常极快。
 
@@ -171,7 +171,7 @@ function RBFS(problem, node, f_limit) returns 解或 failure，及一个新的 f
     result, best.f ← RBFS(problem, best, min(f_limit, alternative))
     if result ≠ failure then return result, best.f
 ```
-性质：空间 O(bd)；回溯时把 best.f 倒推更新（记住次优子树的 f 值），比 IDA* 高效，但仍会重复生成大量节点（图3-23 中 RV↔Fagaras 间反复"改变主意"）。
+性质：空间 O(bd)；h 可采纳则 RBFS 代价最优；回溯时把 best.f 倒推更新（记住次优子树的 f 值），比 IDA* 高效，但仍会重复生成大量节点（图3-23 中 RV↔Fagaras 间反复"改变主意"）。
 
 ## 参考表
 图3-15 搜索算法比较（针对不查重复状态的树状搜索版本；b=分支因子，m=搜索树最大深度，d=最浅层解深度（无解时为 m），ℓ=深度界限，C*=最优解代价，ε=动作代价下界）：
@@ -203,7 +203,7 @@ function RBFS(problem, node, f_limit) returns 解或 failure，及一个新的 f
 评价函数谱系：贪心 f=h ＜ 加权 A* f=g+W·h ＜ A* f=g+h ＜ UCS f=g（h=0），从"只看未来"到"只看过去"的连续谱。
 
 ## 完整示例
-**罗马尼亚寻路（Arad → Bucharest，图3-1）**，五要素：状态=当前城市；初始=Arad；Actions=驶向相邻城市；Result=到达该城市；目标=Bucharest；代价=公路英里数。
+**罗马尼亚寻路（Arad → Bucharest，图3-1）**，问题定义：状态=当前城市；初始=Arad；Actions=驶向相邻城市；Result=到达该城市；目标=Bucharest；代价=公路英里数。
 - 关键边：Arad–Sibiu 140，Arad–Timisoara 118，Arad–Zerind 75，Sibiu–Rimnicu Vilcea(RV) 80，Sibiu–Fagaras 99，Sibiu–Oradea 151，Oradea–Zerind 71，RV–Pitesti 97，RV–Craiova 146，Pitesti–Bucharest 101，Fagaras–Bucharest 211。h_SLD 全表见参考表（图3-16）。
 - 一致代价（从 Sibiu 起的子问题演示后期测试）：RV(80)、Fagaras(99) 入边界 → 扩展 RV 得 Pitesti(177) → 扩展 Fagaras 生成 Bucharest(310)，不测试 → 扩展 Pitesti 得 Bucharest(80+97+101=278)，替换 reached → 扩展 Bucharest(278) 测试通过返回。若生成即测试会错误返回 310。
 - 贪心（h_SLD）：Arad→Sibiu(253)→Fagaras(176)→Bucharest(0)，代价 450，非最优。
@@ -233,12 +233,12 @@ function RBFS(problem, node, f_limit) returns 解或 failure，及一个新的 f
 | 26 | 395355 | 110372 | 10080 | 1.58 | 1.50 | 1.35 |
 | 28 | 463234 | 202565 | 22055 | 1.53 | 1.49 | 1.36 |
 
-（图3-25 的典型实例最短解需 26 步；8数码可达状态 9!/2=181400，15数码 16!/2 超 10 万亿须靠可采纳启发式。）
+（图3-25 的典型实例最短解需 26 步；8数码可达状态 9!/2=181440，15数码 16!/2 超 10 万亿须靠可采纳启发式。）
 
 **启发式构造**：h1、h2 均可由松弛问题导出（删去"相邻""空格"限制后成为精确解长）；多个可采纳 h 取 max 仍可采纳且更强；模式数据库预存子问题（滑块1-2-3-4+空格）精确代价，不相交数据库使 15 数码毫秒级求解（节点数不到曼哈顿距离的万分之一，24 数码约百万倍加速）；地图场景用地标 h_L(n)=min_L[C*(n,L)+C*(L,goal)]（高效但不可采纳）或差分启发式 h_DH=C*(n,L)−C*(goal,L)（可采纳）。
 
 ## 要点
-1. 先形式化再搜索：五元组定错（抽象层级不当），后面全白费；好的抽象=可细化+动作易执行。
+1. 先形式化再搜索：问题定义定错（抽象层级不当），后面全白费；好的抽象=可细化+动作易执行。
 2. 一切无信息/有信息搜索都是 BEST-FIRST-SEARCH 换 f：排队策略即算法身份。
 3. 冗余路径处理是指数级加速点：图搜索 vs 树状搜索是内存与时间的买卖。
 4. A* 的三条命脉：可采纳→最优；一致→最优+首次到达即最优+效率最优；f>C* 等值线外的都被剪枝。
