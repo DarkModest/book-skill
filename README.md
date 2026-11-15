@@ -11,6 +11,7 @@ Books converted into agent skills with [book-to-skill](https://github.com/virgil
 | [math/linear-algebra](math/linear-algebra/) | 《线性代数及其应用（原书第6版）》 (Linear Algebra and Its Applications, 6th ed.) — David C. Lay, Steven R. Lay & Judi J. McDonald |
 | [math/princeton-calculus](math/princeton-calculus/) | 《普林斯顿微积分读本（第2版）》 (The Calculus Lifesaver) — Adrian Banner |
 | [math/tongji-calculus](math/tongji-calculus/) | 《高等数学（第八版）上、下册》 (Higher Mathematics, 8th ed.) — 同济大学数学科学学院 |
+| [jingshui-2008-perspective](jingshui-2008-perspective/) | 静水2008 · 思维操作系统 — 知乎投资博主人物Skill（222篇回答/专栏蒸馏，非书籍；由女娲·Skill造人术生成，2026-11-15 增量更新） |
 
 ## Install
 
@@ -20,6 +21,7 @@ npx skills add https://github.com/DarkModest/book-skill --skill basic-accounting
 npx skills add https://github.com/DarkModest/book-skill --skill linear-algebra
 npx skills add https://github.com/DarkModest/book-skill --skill princeton-calculus
 npx skills add https://github.com/DarkModest/book-skill --skill tongji-calculus
+npx skills add https://github.com/DarkModest/book-skill --skill jingshui-2008-perspective
 ```
 
 Note: all content is synthesized chapter summaries and study aids, not the original book text.
