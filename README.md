@@ -12,6 +12,7 @@ Books converted into agent skills with [book-to-skill](https://github.com/virgil
 | [math/princeton-calculus](math/princeton-calculus/) | 《普林斯顿微积分读本（第2版）》 (The Calculus Lifesaver) — Adrian Banner |
 | [math/tongji-calculus](math/tongji-calculus/) | 《高等数学（第八版）上、下册》 (Higher Mathematics, 8th ed.) — 同济大学数学科学学院 |
 | [jingshui-2008-perspective](jingshui-2008-perspective/) | 静水2008 · 思维操作系统 — 知乎投资博主人物Skill（222篇回答/专栏蒸馏，非书籍；由女娲·Skill造人术生成，2026-11-15 增量更新） |
+| [lidaxiao](lidaxiao/) | 《李大霄投资战略（第三版）》 — 李大霄（经济日报出版社, 2025；扫描版OCR，五部分提炼） |
 
 ## Install
 
@@ -22,6 +23,7 @@ npx skills add https://github.com/DarkModest/book-skill --skill linear-algebra
 npx skills add https://github.com/DarkModest/book-skill --skill princeton-calculus
 npx skills add https://github.com/DarkModest/book-skill --skill tongji-calculus
 npx skills add https://github.com/DarkModest/book-skill --skill jingshui-2008-perspective
+npx skills add https://github.com/DarkModest/book-skill --skill lidaxiao
 ```
 
 Note: all content is synthesized chapter summaries and study aids, not the original book text.
